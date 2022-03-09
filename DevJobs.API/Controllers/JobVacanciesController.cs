@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using DevJobs.API.Models;
 using DevJobs.API.Persistence;
 using DevJobs.API.Entities;
+using Microsoft.EntityFrameworkCore;
+using DevJobs.API.Persistence.Repositories;
 
 namespace DevJobs.API.Controllers;
 
@@ -9,24 +11,24 @@ namespace DevJobs.API.Controllers;
 [ApiController]
 public class JobVacanciesController : ControllerBase
 {
-    private readonly DevJobsContext _context;
+    private readonly IJobVacancyRepository _repository;
     
-    public JobVacanciesController(DevJobsContext context)
+    public JobVacanciesController(IJobVacancyRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var jobVacancies = _context.JobVacancies;
+        var jobVacancies = _repository.GetAll();
         return Ok(jobVacancies);
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var jobVacancy = _context.JobVacancies.SingleOrDefault(jv => jv.Id == id);
+        var jobVacancy = _repository.GetById(id);
 
         if (jobVacancy is null) return NotFound();
 
@@ -44,7 +46,7 @@ public class JobVacanciesController : ControllerBase
             model.SalaryRange
         );
 
-        _context.JobVacancies.Add(jobVacancy);
+        _repository.Add(jobVacancy);
 
         return CreatedAtAction(
             "GetById", 
@@ -55,18 +57,20 @@ public class JobVacanciesController : ControllerBase
     [HttpPut("{id:int}")]
     public IActionResult Put(int id, UpdateJobVacancyUnputModel model)
     {
-        var jobVacancy = _context.JobVacancies.SingleOrDefault(jv => jv.Id == id);
+        var jobVacancy = _repository.GetById(id);
 
         if (jobVacancy is null) return NotFound();
 
         jobVacancy.Update(model.Title, model.Description);
+        // _context.SaveChanges();
+        _repository.Update(jobVacancy);
 
         return NoContent();
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete()
-    {
-        return NoContent();
-    }
+    // [HttpDelete("{id:int}")]
+    // public async Task<IActionResult> Delete()
+    // {
+    //     return NoContent();
+    // }
 }
