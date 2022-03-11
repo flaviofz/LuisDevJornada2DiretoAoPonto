@@ -4,6 +4,7 @@ using DevJobs.API.Persistence;
 using DevJobs.API.Entities;
 using Microsoft.EntityFrameworkCore;
 using DevJobs.API.Persistence.Repositories;
+using Serilog;
 
 namespace DevJobs.API.Controllers;
 
@@ -35,9 +36,27 @@ public class JobVacanciesController : ControllerBase
         return Ok(jobVacancy);
     }
 
+    /// <summary>
+    /// Cadastrar uma vaga de emprego
+    /// </summary>
+    /// <remarks>
+    /// {
+    ///  "title": "Titulo",
+    ///  "description": "Descrição da vaga",
+    ///  "company": "Empresa",
+    ///  "isRemote": true,
+    ///  "salaryRange": "3.000,00 - 5.000,00"
+    /// }
+    /// </remarks>
+    /// <param name="model">Dados da vaga</param>
+    /// <returns>Objeto criado</returns>
+    /// <response code ="201">Sucesso</response>
+    /// <response code ="400">Dados inválidos</response>
     [HttpPost]
-    public async Task<IActionResult> Post(AddJobVacancyUnputModel model)
+    public async Task<IActionResult> Post(AddJobVacancyInputModel model)
     {
+        Log.Information("POST JobVacancy chamado");
+        
         var jobVacancy = new JobVacancy(
             model.Title,
             model.Description,

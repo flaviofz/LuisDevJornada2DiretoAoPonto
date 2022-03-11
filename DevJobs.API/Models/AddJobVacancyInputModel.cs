@@ -1,6 +1,6 @@
 namespace DevJobs.API.Models;
 
-public record AddJobVacancyUnputModel(
+public record AddJobVacancyInputModel(
     string Title,
     string Description,
     string Company,
